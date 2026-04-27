@@ -1,0 +1,50 @@
+# --- ビルド成果物 (セキュリティ & 容量削減) ---
+# バイナリにはソースコードの情報や環境パスが含まれる可能性があるため除外
+build/
+bin/
+obj/
+*.elf
+*.bin
+*.hex
+*.uf2
+*.map
+
+# --- Raspberry Pi Pico SDK / CMake 関連 ---
+# ローカルのSDKパス設定が含まれるファイルを排除
+.pico_sdk/
+cmake-build-debug/
+cmake-build-release/
+CMakeFiles/
+CMakeCache.txt
+Makefile
+cmake_install.cmake
+pico_sdk_import.cmake
+# ※pico_sdk_import.cmakeはSDKからコピーしてくるものなので、
+#   リポジトリには含めず、利用者が各自配置するルールを適用
+
+# --- エディタ・IDE設定 (Cursor / VS Code) ---
+# 個人の環境設定（絶対パスや最近開いたファイル等）を完全に除外
+.vscode/
+.history/
+*.log
+
+# --- OS固有の一時ファイル ---
+.DS_Store
+Thumbs.db
+
+# --- 一時ファイル・バックアップ ---
+*~
+*.swp
+*.bak
+*.tmp
+
+# --- セキュリティ項目 (最優先) ---
+# 万が一、秘密鍵やカスタム証明書などを使う場合に備えて
+*.pem
+*.key
+*.secret
+.env
+
+# --- ローカルの進捗管理用 ---
+# （先ほど作成したタスク一覧ファイル名に合わせて大文字に修正）
+TASK.md
