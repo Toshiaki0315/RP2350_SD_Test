@@ -22,7 +22,6 @@ endif()
 # Raspberry Pi Pico SDK のインポート
 include(pico_sdk_import.cmake)
 
-# プロジェクト名をSDテスト用に変更
 project(RP2350_SD_Test C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 20)
@@ -30,21 +29,25 @@ set(CMAKE_CXX_STANDARD 20)
 # SDKの初期化
 pico_sdk_init()
 
-# ====== 外部ライブラリ (FatFs) の追加 ======
-# libディレクトリに配置するFatFsライブラリをビルド対象に追加
-add_subdirectory(lib/no-OS-FatFS-SD-SPI-RPi-Pico)
+# ====== 魔法の解決策: ダミーの hardware_rtc ライブラリを作成 ======
+# 外部ライブラリが要求するハードコード依存を吸収する、実体を持たない空のターゲットを作ります
+add_library(hardware_rtc INTERFACE)
+target_include_directories(hardware_rtc INTERFACE src/mock)
 
-# 実行ファイルの追加 (今回は main.c とハードウェア設定用の hw_config.c)
+# ====== 外部ライブラリ (FatFs) の追加 ======
+add_subdirectory(lib/no-OS-FatFS-SD-SPI-RPi-Pico/FatFs_SPI)
+
+# 実行ファイルの追加
 add_executable(RP2350_SD_Test
     src/main.c
     src/hw_config.c
 )
 
-# リンクするライブラリ
+# ====== リンクするライブラリ ======
 target_link_libraries(RP2350_SD_Test 
     pico_stdlib 
     hardware_spi 
-    no-OS-FatFS-SD-SPI-RPi-Pico # FatFsラッパーライブラリをリンク
+    FatFs_SPI
 )
 
 # 標準入出力設定 (USBシリアルを有効化)
