@@ -1,48 +1,37 @@
 /* src/hw_config.c */
-#include "ff.h"       // 追加: FatFs本体のヘッダ
-#include "diskio.h"   // 追加: STA_NOINIT が定義されているヘッダ
+#include "ff.h"       
+#include "diskio.h"   
 #include "hw_config.h"
 
-// SPIポートの設定
-spi_t spi_descs[] = {
-    {
-        .hw_inst = spi0,           // 使用するSPIハードウェア (spi0)
-        .miso_gpio = 21,           // MISO (SD_D0)
-        .mosi_gpio = 20,           // MOSI (SD_CMD)
-        .sck_gpio = 19,            // SCK  (SD_SCK)
-        .baud_rate = 12500 * 1000  // SPIクロック周波数 (12.5 MHz)
-    }
+// ▼ SDIOインターフェースの設定 (回路図のピン配置と完全一致させます)
+sd_sdio_if_t sdio_if = {
+    .CMD_gpio = 20,
+    .D0_gpio  = 21,
+    .D1_gpio  = 22,   // 回路図の SD_D1
+    .D2_gpio  = 23,   // 回路図の SD_D2
+    .D3_gpio  = 24,   // 回路図の SD_D3 (CS兼用)
+    .CLK_gpio = 19,
+    .baud_rate = 12500 * 1000 // 12.5 MHz
 };
 
-// SDカードのSPIインターフェース設定
+// ▼ SDカード設定
 sd_card_t sd_cards[] = {
     {
-        .pcName = "0:",            // FatFsでのドライブ名
-        .spi = &spi_descs[0],      // 上記で定義したSPI設定を使用
-        .ss_gpio = 24,             // CS (チップセレクト / SD_D3)
-        .use_card_detect = false,  // カード挿入検知ピン(CD)は使用しない
-        .m_Status = STA_NOINIT     // 初期ステータス
+        .type = SD_IF_SDIO,
+        .sdio_if_p = &sdio_if,
+        .use_card_detect = false,
     }
 };
 
-// ライブラリから要求される配列サイズの取得関数
-size_t spi_get_num() { return count_of(spi_descs); }
 size_t sd_get_num() { return count_of(sd_cards); }
 
-// 番号からSDカードの構造体ポインタを返す関数
 sd_card_t *sd_get_by_num(size_t num) {
     if (num < sd_get_num()) {
         return &sd_cards[num];
-    } else {
-        return NULL;
     }
+    return NULL;
 }
 
-// 番号からSPIの構造体ポインタを返す関数
-spi_t *spi_get_by_num(size_t num) {
-    if (num < spi_get_num()) {
-        return &spi_descs[num];
-    } else {
-        return NULL;
-    }
-}
+// SPIは使用しないため空の関数にしておきます
+size_t spi_get_num() { return 0; }
+spi_t *spi_get_by_num(size_t num) { return NULL; }

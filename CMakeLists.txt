@@ -30,12 +30,12 @@ set(CMAKE_CXX_STANDARD 20)
 pico_sdk_init()
 
 # ====== 魔法の解決策: ダミーの hardware_rtc ライブラリを作成 ======
-# 外部ライブラリが要求するハードコード依存を吸収する、実体を持たない空のターゲットを作ります
 add_library(hardware_rtc INTERFACE)
 target_include_directories(hardware_rtc INTERFACE src/mock)
 
 # ====== 外部ライブラリ (FatFs) の追加 ======
-add_subdirectory(lib/no-OS-FatFS-SD-SPI-RPi-Pico/FatFs_SPI)
+# 最新版はルートディレクトリを直接指定します
+add_subdirectory(lib/no-OS-FatFS-SD-SPI-RPi-Pico/src FatFs_SPI)
 
 # 実行ファイルの追加
 add_executable(RP2350_SD_Test
@@ -44,10 +44,16 @@ add_executable(RP2350_SD_Test
 )
 
 # ====== リンクするライブラリ ======
+# 最新版ライブラリに合わせて FatFs_SPI をリンクします（内部でSDIOとして動きます）
 target_link_libraries(RP2350_SD_Test 
-    pico_stdlib 
-    hardware_spi 
-    FatFs_SPI
+    no-OS-FatFS-SD-SDIO-SPI-RPi-Pico
+)
+
+# ====== インクルードパスの追加 ======
+target_include_directories(RP2350_SD_Test PRIVATE
+    lib/no-OS-FatFS-SD-SPI-RPi-Pico/src/ff15/source
+    lib/no-OS-FatFS-SD-SPI-RPi-Pico/src/include
+    lib/no-OS-FatFS-SD-SPI-RPi-Pico/src/sd_driver
 )
 
 # 標準入出力設定 (USBシリアルを有効化)
